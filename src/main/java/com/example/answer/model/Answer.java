@@ -1,6 +1,8 @@
-package com.example;
+package com.example.answer.model;
 
 import java.time.LocalDateTime;
+
+import com.example.question.model.Question;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
