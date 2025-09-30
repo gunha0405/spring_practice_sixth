@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.answer.repository.AnswerRepository;
 import com.example.question.repository.QuestionRepository;
+import com.example.question.service.QuestionService;
 
 import jakarta.transaction.Transactional;
 
@@ -20,13 +21,13 @@ import jakarta.transaction.Transactional;
 class SpringPracticeSixthApplicationTests {
 
 	@Autowired
-    private QuestionRepository questionRepository;
+    private QuestionService questionService;
 	
 	
 	@Autowired
     private AnswerRepository answerRepository;
 	
-		@Transactional
+		
 	 	@Test
 	    void testJpa() {        
 		 /*
@@ -104,6 +105,10 @@ class SpringPracticeSixthApplicationTests {
 		 	
 		 	
 	    */
-		 
+			for (int i = 1; i <= 300; i++) {
+	            String subject = String.format("테스트 데이터입니다:[%03d]", i);
+	            String content = "내용무";
+	            this.questionService.create(subject, content);
+	        }
 	    }
 }
