@@ -31,14 +31,16 @@ public class QuestionService {
         return this.questionRepository.findAll();
     }
     
-    public Question getQuestion(Long id) {  
-        Optional<Question> question = this.questionRepository.findById(id);
-        if (question.isPresent()) {
-            return question.get();
-        } else {
-            throw new DataNotFoundException("question not found");
-        }
+    public Question getQuestion(Long id) {
+        Question question = this.questionRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("question not found"));
+
+        question.setViewCount(question.getViewCount() + 1);
+        this.questionRepository.save(question);
+
+        return question;
     }
+
     
     public void create(String subject, String content, Long categoryId, SiteUser author) {
         Optional<Category> category = this.categoryRepository.findById(categoryId);
