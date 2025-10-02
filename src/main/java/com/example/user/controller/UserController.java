@@ -105,9 +105,9 @@ public class UserController {
     public String profile(Principal principal, Model model) {
         SiteUser user = userService.getUser(principal.getName());
         model.addAttribute("user", user);
-        model.addAttribute("questions", user.getQuestionList()); // 작성한 질문
-        model.addAttribute("answers", user.getAnswerList());     // 작성한 답변
-        model.addAttribute("comments", user.getCommentList());   // 작성한 댓글
+        model.addAttribute("questions", user.getQuestionList()); 
+        model.addAttribute("answers", user.getAnswerList());    
+        model.addAttribute("comments", user.getCommentList());   
         return "profile";
     }
 

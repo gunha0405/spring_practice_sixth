@@ -13,10 +13,18 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.example.user.service.CustomOAuth2UserService;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+	
+	private final CustomOAuth2UserService customOAuth2UserService;
+	
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -30,6 +38,10 @@ public class SecurityConfig {
             .formLogin((formLogin) -> formLogin
                     .loginPage("/user/login")
                     .defaultSuccessUrl("/"))
+            .oauth2Login(oauth2 -> oauth2
+                    .loginPage("/user/login")
+                    .defaultSuccessUrl("/", true)
+                    .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)))
             .logout((logout) -> logout
                     .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
                     .logoutSuccessUrl("/")
@@ -38,10 +50,7 @@ public class SecurityConfig {
         return http.build();
     }
     
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+   
     
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
