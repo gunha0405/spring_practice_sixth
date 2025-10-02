@@ -1,5 +1,18 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
+	<div class="d-flex justify-content-end mb-3">
+	    <div class="btn-group" role="group">
+	        <a th:href="@{/question/list}" 
+	           th:classappend="${sortType == null} ? 'btn-primary' : 'btn-outline-primary'"
+	           class="btn btn-sm">기본순</a>
+	        <a th:href="@{/question/list/recent-answers}" 
+	           th:classappend="${sortType == 'recent-answers'} ? 'btn-primary' : 'btn-outline-primary'"
+	           class="btn btn-sm">최근 답변순</a>
+	        <a th:href="@{/question/list/recent-comments}" 
+	           th:classappend="${sortType == 'recent-comments'} ? 'btn-primary' : 'btn-outline-primary'"
+	           class="btn btn-sm">최근 댓글순</a>
+	    </div>
+	</div>
     <table class="table">
         <thead class="table-dark">
 			<tr class="text-center">

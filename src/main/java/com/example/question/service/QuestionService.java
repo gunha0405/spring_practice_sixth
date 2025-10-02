@@ -73,4 +73,14 @@ public class QuestionService {
         question.getVoter().add(siteUser);
         this.questionRepository.save(question);
     }
+    
+    public Page<Question> getQuestionsByLatestAnswer(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return questionRepository.findAllOrderByLatestAnswer(pageable);
+    }
+
+    public Page<Question> getQuestionsByLatestComment(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return questionRepository.findAllOrderByLatestComment(pageable);
+    }
 }

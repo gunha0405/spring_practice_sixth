@@ -52,6 +52,25 @@ public class QuestionController {
         return "question_list";
     }
     
+	@GetMapping("/list/recent-answers")
+	public String listByRecentAnswers(Model model,
+	                                  @RequestParam(value = "page", defaultValue = "0") int page) {
+	    Page<Question> paging = questionService.getQuestionsByLatestAnswer(page);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("sortType", "recent-answers");
+	    return "question_list";
+	}
+
+	@GetMapping("/list/recent-comments")
+	public String listByRecentComments(Model model,
+	                                   @RequestParam(value = "page", defaultValue = "0") int page) {
+	    Page<Question> paging = questionService.getQuestionsByLatestComment(page);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("sortType", "recent-comments");
+	    return "question_list";
+	}
+
+	
     
 	@GetMapping("/detail/{id}")
 	public String detail(Model model,
