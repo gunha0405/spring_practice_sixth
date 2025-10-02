@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.user.model.SiteUser;
 import com.example.user.model.dto.UserCreateForm;
 import com.example.user.service.UserService;
 
@@ -98,4 +99,16 @@ public class UserController {
             return "change_password_form";
         }
     }
+    
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/profile")
+    public String profile(Principal principal, Model model) {
+        SiteUser user = userService.getUser(principal.getName());
+        model.addAttribute("user", user);
+        model.addAttribute("questions", user.getQuestionList()); // 작성한 질문
+        model.addAttribute("answers", user.getAnswerList());     // 작성한 답변
+        model.addAttribute("comments", user.getCommentList());   // 작성한 댓글
+        return "profile";
+    }
+
 }
