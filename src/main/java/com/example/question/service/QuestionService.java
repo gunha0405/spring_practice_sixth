@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.DataNotFoundException;
+import com.example.category.model.Category;
+import com.example.category.repository.CategoryRepository;
 import com.example.question.model.Question;
 import com.example.question.repository.QuestionRepository;
 import com.example.user.model.SiteUser;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<Question> getList() {
         return this.questionRepository.findAll();
@@ -37,11 +40,13 @@ public class QuestionService {
         }
     }
     
-    public void create(String subject, String content, SiteUser author) {
-        Question q = new Question();
+    public void create(String subject, String content, Long categoryId, SiteUser author) {
+        Optional<Category> category = this.categoryRepository.findById(categoryId);
+    	Question q = new Question();
         q.setSubject(subject);
         q.setContent(content);
         q.setAuthor(author);
+        q.setCategory(category.get());
         q.setCreateDate(LocalDateTime.now());
         this.questionRepository.save(q);
     }
