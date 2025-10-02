@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.DataNotFoundException;
+import com.example.category.model.Category;
+import com.example.category.repository.CategoryRepository;
 import com.example.question.model.Question;
 import com.example.question.repository.QuestionRepository;
 import com.example.user.model.SiteUser;
@@ -23,25 +25,30 @@ import lombok.RequiredArgsConstructor;
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<Question> getList() {
         return this.questionRepository.findAll();
     }
     
-    public Question getQuestion(Long id) {  
-        Optional<Question> question = this.questionRepository.findById(id);
-        if (question.isPresent()) {
-            return question.get();
-        } else {
-            throw new DataNotFoundException("question not found");
-        }
+    public Question getQuestion(Long id) {
+        Question question = this.questionRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("question not found"));
+
+        question.setViewCount(question.getViewCount() + 1);
+        this.questionRepository.save(question);
+
+        return question;
     }
+
     
-    public void create(String subject, String content, SiteUser author) {
-        Question q = new Question();
+    public void create(String subject, String content, Long categoryId, SiteUser author) {
+        Optional<Category> category = this.categoryRepository.findById(categoryId);
+    	Question q = new Question();
         q.setSubject(subject);
         q.setContent(content);
         q.setAuthor(author);
+        q.setCategory(category.get());
         q.setCreateDate(LocalDateTime.now());
         this.questionRepository.save(q);
     }
@@ -67,5 +74,15 @@ public class QuestionService {
     public void vote(Question question, SiteUser siteUser) {
         question.getVoter().add(siteUser);
         this.questionRepository.save(question);
+    }
+    
+    public Page<Question> getQuestionsByLatestAnswer(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return questionRepository.findAllOrderByLatestAnswer(pageable);
+    }
+
+    public Page<Question> getQuestionsByLatestComment(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return questionRepository.findAllOrderByLatestComment(pageable);
     }
 }

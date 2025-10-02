@@ -17,7 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.answer.model.Answer;
 import com.example.answer.model.dto.AnswerForm;
+import com.example.answer.service.AnswerService;
+import com.example.category.model.Category;
+import com.example.category.service.CategoryService;
 import com.example.question.model.Question;
 import com.example.question.model.dto.QuestionForm;
 import com.example.question.repository.QuestionRepository;
@@ -35,7 +39,9 @@ import lombok.RequiredArgsConstructor;
 public class QuestionController {
 
 	private final QuestionService questionService;
+	private final AnswerService answerService;
 	private final UserService userService;
+	private final CategoryService categoryService;
 
 	@GetMapping("/list")
     public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
@@ -46,28 +52,58 @@ public class QuestionController {
         return "question_list";
     }
     
+	@GetMapping("/list/recent-answers")
+	public String listByRecentAnswers(Model model,
+	                                  @RequestParam(value = "page", defaultValue = "0") int page) {
+	    Page<Question> paging = questionService.getQuestionsByLatestAnswer(page);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("sortType", "recent-answers");
+	    return "question_list";
+	}
+
+	@GetMapping("/list/recent-comments")
+	public String listByRecentComments(Model model,
+	                                   @RequestParam(value = "page", defaultValue = "0") int page) {
+	    Page<Question> paging = questionService.getQuestionsByLatestComment(page);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("sortType", "recent-comments");
+	    return "question_list";
+	}
+
+	
     
-    @GetMapping(value = "/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Long id, AnswerForm answerForm) {
-        Question question = this.questionService.getQuestion(id);
-        model.addAttribute("question", question);
-        return "question_detail";
-    }
+	@GetMapping("/detail/{id}")
+	public String detail(Model model,
+	                     @PathVariable("id") Long id,
+	                     @RequestParam(value = "page", defaultValue = "0") int page,
+	                     @RequestParam(value = "sort", defaultValue = "new") String sort) {
+	    Question question = this.questionService.getQuestion(id);
+	    Page<Answer> paging = this.answerService.getAnswersByQuestion(question, page, sort);
+
+	    model.addAttribute("question", question);
+	    model.addAttribute("answerPaging", paging);
+	    model.addAttribute("answerForm", new AnswerForm());
+	    model.addAttribute("sort", sort);
+	    return "question_detail";
+	}
     
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String questionCreate(QuestionForm questionForm) {
+    public String questionCreate(QuestionForm questionForm, Model model) {
+    	List<Category> categories = this.categoryService.getAllCategories();
+        model.addAttribute("categories", categories);
         return "question_form";
     }
     
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
+    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal, Model model) {
         if (bindingResult.hasErrors()) {
+        	model.addAttribute("categories", categoryService.getAllCategories());
             return "question_form";
         }
         SiteUser siteUser = this.userService.getUser(principal.getName());
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
+        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), questionForm.getCategoryId(), siteUser);
         return "redirect:/question/list";
     }
     

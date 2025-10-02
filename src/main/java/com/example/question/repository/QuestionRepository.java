@@ -29,4 +29,21 @@ public interface QuestionRepository extends JpaRepository<Question, Long>{
             + "   or a.content like %:kw% "
             + "   or u2.username like %:kw% ")
     Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
+	
+	@Query("""
+		    SELECT q FROM Question q
+		    LEFT JOIN q.commentList c
+		    GROUP BY q
+		    ORDER BY MAX(c.createDate) DESC
+		""")
+		Page<Question> findAllOrderByLatestComment(Pageable pageable);
+	
+	@Query("""
+		    SELECT q FROM Question q
+		    LEFT JOIN q.answerList a
+		    GROUP BY q
+		    ORDER BY MAX(a.createDate) DESC
+		""")
+		Page<Question> findAllOrderByLatestAnswer(Pageable pageable);
+
 }

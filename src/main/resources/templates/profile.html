@@ -1,0 +1,47 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-4">
+
+    <h3 class="mb-4">내 프로필</h3>
+
+    <!-- 사용자 기본 정보 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${user.username}">사용자명</h5>
+            <p class="card-text">
+                <strong>Email:</strong> <span th:text="${user.email}"></span><br/>
+            </p>
+        </div>
+    </div>
+
+    <!-- 내가 작성한 질문 -->
+    <h5 class="border-bottom pb-2">내 질문</h5>
+    <ul class="list-group mb-4">
+        <li class="list-group-item" th:each="q : ${questions}">
+            <a th:href="@{|/question/detail/${q.id}|}" th:text="${q.subject}"></a>
+            <small class="text-muted float-end" th:text="${#temporals.format(q.createDate, 'yyyy-MM-dd HH:mm')}"></small>
+        </li>
+        <li th:if="${#lists.isEmpty(questions)}" class="list-group-item text-muted">작성한 질문이 없습니다.</li>
+    </ul>
+
+    <!-- 내가 작성한 답변 -->
+    <h5 class="border-bottom pb-2">내 답변</h5>
+    <ul class="list-group mb-4">
+        <li class="list-group-item" th:each="a : ${answers}">
+            <a th:href="@{|/question/detail/${a.question.id}#answer_${a.id}|}" th:text="${#strings.abbreviate(a.content, 50)}"></a>
+            <small class="text-muted float-end" th:text="${#temporals.format(a.createDate, 'yyyy-MM-dd HH:mm')}"></small>
+        </li>
+        <li th:if="${#lists.isEmpty(answers)}" class="list-group-item text-muted">작성한 답변이 없습니다.</li>
+    </ul>
+
+    <!-- 내가 작성한 댓글 -->
+    <h5 class="border-bottom pb-2">내 댓글</h5>
+    <ul class="list-group mb-4">
+        <li class="list-group-item" th:each="c : ${comments}">
+            <span th:text="${#strings.abbreviate(c.content, 50)}"></span>
+            <small class="text-muted float-end" th:text="${#temporals.format(c.createDate, 'yyyy-MM-dd HH:mm')}"></small>
+        </li>
+        <li th:if="${#lists.isEmpty(comments)}" class="list-group-item text-muted">작성한 댓글이 없습니다.</li>
+    </ul>
+
+</div>
+</html>
